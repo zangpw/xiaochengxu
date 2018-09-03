@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-4.3.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+						http://www.springframework.org/schema/mvc
+						http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+	<context:component-scan base-package="com.spring" />
+	<!-- 加载jdbc.properties文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:jdbc.properties" />
+	</bean>
+
+	<!-- 数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+		<property name="maxActive" value="${maxActive}" />
+		<property name="minIdle" value="${minIdle}" />
+	</bean>
+
+	<!-- sqlsessionfactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 数据库连接池 -->
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.spring.model" />
+		<property name="mapperLocations" value="classpath:com/spring/mapper/*.xml" />
+		<property name="configLocation" value="classpath:com/mybatis-config.xml" />
+	</bean>
+
+	<!-- 配置mapper扫描器 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<property name="basePackage" value="com.spring.mapper"></property>
+	</bean>
+
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 1.事务处理的注解驱动 <tx:annotation-driven transaction-manager="transactionManager"/> -->
+
+	<!-- 2.拦截器方式配置事务 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="query*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- <aop:pointcut id="allTestServiceMethod" pointcut="execution(*com.spring.service.impl.*.*(..))"/> -->
+	<aop:config>
+		<aop:pointcut id="allTestServiceMethod"
+			expression="execution(* com.spring.service.impl.*.*(..))" />
+		<aop:advisor pointcut-ref="allTestServiceMethod"
+			advice-ref="transactionAdvice" />
+	</aop:config>
+
+</beans>

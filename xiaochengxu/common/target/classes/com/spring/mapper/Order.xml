@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spring.mapper.OrderMapper">
+	<resultMap id="BaseResultMap" type="com.spring.model.Order">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="product_id" property="productId"
+			jdbcType="BIGINT" />
+		<result column="member_id" property="memberId"
+			jdbcType="BIGINT" />
+		<result column="true_name" property="trueName"
+			jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="state" property="state" jdbcType="SMALLINT" />
+		<result column="cancel_time" property="cancelTime"
+			jdbcType="BIGINT" />
+		<result column="send_time" property="sendTime"
+			jdbcType="BIGINT" />
+		<result column="start_check_time" property="startCheckTime"
+			jdbcType="BIGINT" />
+		<result column="end_check_time" property="endCheckTime"
+			jdbcType="BIGINT" />
+		<result column="finish_time" property="finishTime"
+			jdbcType="BIGINT" />
+		<result column="return_time" property="returnTime"
+			jdbcType="BIGINT" />
+		<result column="return_finish_time" property="returnFinishTime"
+			jdbcType="BIGINT" />
+		<result column="tracking_company" property="trackingCompany"
+			jdbcType="VARCHAR" />
+		<result column="tracking_number" property="trackingNumber"
+			jdbcType="VARCHAR" />
+		<result column="order_price" property="orderPrice"
+			jdbcType="DECIMAL" />
+		<result column="recover_price" property="recoverPrice"
+			jdbcType="DECIMAL" />
+		<result column="consult_price" property="consultPrice"
+			jdbcType="DECIMAL" />
+		<result column="recycling_method_id"
+			property="recyclingMethodId" jdbcType="BIGINT" />
+		<result column="recycling_start_time"
+			property="recyclingStartTime" jdbcType="BIGINT" />
+		<result column="recycling_end_time" property="recyclingEndTime"
+			jdbcType="BIGINT" />
+		<result column="create_time" property="createTime"
+			jdbcType="BIGINT" />
+		<result column="data_flag" property="dataFlag"
+			jdbcType="SMALLINT" />
+		<result column="update_time" property="updateTime"
+			jdbcType="BIGINT" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, product_id, member_id, true_name, mobile, address,
+		state,
+		cancel_time, send_time,
+		start_check_time, end_check_time,
+		finish_time, return_time, return_finish_time,
+		tracking_number,
+		recover_price, recycling_method_id, recycling_start_time,
+		recycling_end_time,
+		create_time,
+		data_flag, update_time
+	</sql>
+
+	<select id="getPageByTrueName" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from orders
+		where true_name like "%"#{trueName}"%" and data_flag=1
+	</select>
+
+	<resultMap id="OrderVoMap" type="com.spring.model.OrderVo">
+		<id column="id" property="orderId" jdbcType="BIGINT" />
+		<result column="order_sn" property="orderSn"
+			jdbcType="BIGINT" />
+		<result column="state" property="state" jdbcType="SMALLINT" />
+		<result column="true_name" property="trueName"
+			jdbcType="VARCHAR" />
+		<result column="order_price" property="orderPrice"
+			jdbcType="DECIMAL" />
+		<result column="recover_price" property="recoverPrice"
+			jdbcType="DECIMAL" />
+		<result column="consult_price" property="consultPrice"
+			jdbcType="DECIMAL" />
+		<result column="create_time" property="createTime"
+			jdbcType="BIGINT" />
+		<result column="remarks" property="remarks" jdbcType="VARCHAR" />
+		<result column="tracking_company" property="trackingCompany"
+			jdbcType="VARCHAR" />
+		<result column="tracking_number" property="trackingNumber"
+			jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="getOrderVoByState"
+		parameterType="com.spring.model.Order" resultMap="OrderVoMap">
+		select id,order_sn,state,true_name,order_price,recover_price,create_time,tracking_company,tracking_number,mobile,remarks,consult_price from orders
+		<where>
+			data_flag=1
+			<if test="states!=null">
+				and state in
+				<foreach collection="states" item="state" index="index"
+					open="(" close=")" separator=",">
+					#{state}
+				</foreach>
+			</if>
+			<if test="memberId!=null">
+				and member_id = #{memberId}
+			</if>
+			<if test="productId!=null">
+				and product_id=#{productId}
+			</if>
+			<if test="trueName!=null">
+				and true_name like "%"#{trueName}"%"
+			</if> order by create_time desc
+		</where>
+	</select>
+</mapper>

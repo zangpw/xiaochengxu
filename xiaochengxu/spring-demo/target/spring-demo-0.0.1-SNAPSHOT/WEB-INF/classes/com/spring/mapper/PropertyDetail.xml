@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spring.mapper.PropertyDetailMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.spring.model.PropertyDetail">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="product_propertie_id"
+			property="productPropertieId" jdbcType="BIGINT" />
+		<result column="value" property="value" jdbcType="VARCHAR" />
+		<result column="weight_ratio" property="weightRatio"
+			jdbcType="DOUBLE" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime"
+			jdbcType="BIGINT" />
+		<result column="update_time" property="updateTime"
+			jdbcType="BIGINT" />
+		<result column="data_flag" property="dataFlag"
+			jdbcType="SMALLINT" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, product_propertie_id, value, weight_ratio, remark,
+		create_time,
+		update_time,
+		data_flag
+	</sql>
+	<select id="selectByIds" resultMap="BaseResultMap"
+		parameterType="Long[]">
+		select
+		<include refid="Base_Column_List" />
+		from property_detail
+		where id in
+		<foreach collection="array" open="(" separator="," close=")"
+			item="item">
+			#{item}
+		</foreach>
+	</select>
+</mapper>
